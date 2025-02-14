@@ -8,3 +8,6 @@ node_modules
 cdk.out
 
 dist
+
+# Hide account specific context in a public GitHub repository
+cdk.context.json
