@@ -1,25 +1,34 @@
-import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns'
 import { Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
+import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns'
 import {
   Cluster,
   ContainerImage,
+  FargateService,
   FargateTaskDefinition,
   LogDrivers,
 } from 'aws-cdk-lib/aws-ecs'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { Vpc } from 'aws-cdk-lib/aws-ec2'
+import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
+import {
+  PolicyDocument,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam'
 
 export class FargateSchedulerDemoStack extends Stack {
   readonly id: string
+  service: FargateService
+  cluster: Cluster
 
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
     this.id = id
 
     this.buildApplicationLoadBalancedFargateService()
-    // TODO:
-    // Build EventBridge scheduler to shut the service off/on
+    this.buildSchedules()
   }
 
   private buildApplicationLoadBalancedFargateService() {
@@ -28,7 +37,7 @@ export class FargateSchedulerDemoStack extends Stack {
       maxAzs: 2,
     })
 
-    const cluster = new Cluster(this, `${this.id}-cluster`, {
+    this.cluster = new Cluster(this, `${this.id}-cluster`, {
       clusterName: `${this.id}-cluster`,
       vpc,
     })
@@ -77,7 +86,7 @@ export class FargateSchedulerDemoStack extends Stack {
             weight: 1,
           },
         ],
-        cluster,
+        cluster: this.cluster,
         circuitBreaker: {
           enable: true,
           rollback: true,
@@ -87,6 +96,7 @@ export class FargateSchedulerDemoStack extends Stack {
         taskDefinition,
       }
     )
+    this.service = service.service
 
     // Allow shorter de-registration to seperate the LB from Fargate instance in the case of a spot shutdown
     // Mostly just needs to be less than 2 minutes
@@ -94,5 +104,61 @@ export class FargateSchedulerDemoStack extends Stack {
       'deregistration_delay.timeout_seconds',
       '30'
     )
+  }
+
+  private buildSchedules() {
+    const scheduleRole = new Role(this, `${this.id}-scheduler-role`, {
+      assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
+      roleName: `${this.id}-scheduler-role`,
+      inlinePolicies: {
+        ecsUpdateServicePolicy: new PolicyDocument({
+          statements: [
+            new PolicyStatement({
+              actions: ['ecs:UpdateService'],
+              resources: [this.service.serviceArn],
+            }),
+          ],
+        }),
+      },
+    })
+
+    const schedules = [
+      {
+        name: `${this.id}-up`,
+        desiredCount: 1,
+        scheduleExpression: 'cron(0 9 ? * MON-FRI *)',
+      },
+      {
+        name: `${this.id}-down`,
+        desiredCount: 0,
+        scheduleExpression: 'cron(0 17 ? * MON-FRI *)',
+      },
+    ]
+
+    schedules.forEach(({ name, desiredCount, scheduleExpression }) => {
+      new CfnSchedule(this, name, {
+        description: `Sets the desired count of the ${this.service.serviceName} ECS service to ${desiredCount}`,
+        name,
+        flexibleTimeWindow: {
+          mode: 'OFF',
+        },
+        scheduleExpression,
+        scheduleExpressionTimezone: 'America/Los_Angeles',
+        state: 'ENABLED',
+        target: {
+          arn: 'arn:aws:scheduler:::aws-sdk:ecs:updateService',
+          roleArn: scheduleRole.roleArn,
+          input: JSON.stringify({
+            Cluster: `${this.cluster.clusterName}`,
+            Service: `${this.service.serviceName}`,
+            DesiredCount: desiredCount,
+          }),
+          retryPolicy: {
+            maximumEventAgeInSeconds: 90,
+            maximumRetryAttempts: 2,
+          },
+        },
+      })
+    })
   }
 }
