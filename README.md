@@ -1,14 +1,10 @@
-# Welcome to your CDK TypeScript project
+# Fargate Scheduler Demo
 
-This is a blank project for CDK development with TypeScript.
+Did you ever need to have a web app server on AWS for an application, but also it won't be used during certain times of the day and you want to save money running that server?
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+This is one of many a solutions to this usecase that utilizes the following AWS services:
 
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+- Application Load Balancer
+- Fargate
+- EventBridge Scheduler
+- AWS Cloud Development Kit (CDK) for deployment
