@@ -4,10 +4,10 @@ Do you need to have a non-business critical web app that requires a server on AW
 
 This is a solution for this usecase that utilizes the following AWS services:
 
-- Application Load Balancer
-- Fargate (Spot instances)
-- EventBridge Scheduler
-- AWS Cloud Development Kit (CDK) for deployment
+- [Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html)
+- [Fargate (Spot instances)](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-capacity-providers.html0
+- [EventBridge Scheduler](https://docs.aws.amazon.com/scheduler/latest/UserGuide/what-is-scheduler.html)
+- [AWS Cloud Development Kit for TypeScript](https://docs.aws.amazon.com/cdk/v2/guide/home.html) - for infrastructure as code based deployment
 
 In this solution we heavily prefer Fargate Spot instances. There's also an EventBridge Scheduler schedule that shuts down the Fargate task during times of non usage and turns the task on during regular usage times.
 
@@ -15,14 +15,14 @@ In this solution we heavily prefer Fargate Spot instances. There's also an Event
 
 ### Prerequisites
 
-1. Install Node.js
+1. Install [Node.js](https://nodejs.org/en) - the desired version number can be found in the `.nvmrc` file at the root of this repo
 2. Ensure you have an AWS account, install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), and [configure your credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
 
 ### Deployment
 
 1. Clone the repo
 2. Run `npm install`
-3. Install and configure the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
+3. Configure the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for the account you'd like to deploy into
 4. Run `npm run deploy`
 
 ### Info
@@ -35,4 +35,4 @@ In this solution we heavily prefer Fargate Spot instances. There's also an Event
 
 ## Architecture diagram
 
-Coming soon ™️
+<img width="882" alt="Screenshot 2025-02-14 at 16 37 39" src="https://github.com/user-attachments/assets/4e1482ff-8c52-4181-8ad3-d5e1eecdad0b" />
