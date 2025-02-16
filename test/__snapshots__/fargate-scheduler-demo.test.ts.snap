@@ -1,0 +1,971 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot matches 1`] = `
+{
+  "Outputs": {
+    "MyTestStackserviceLoadBalancerDNSFCBF89B2": {
+      "Value": {
+        "Fn::GetAtt": [
+          "MyTestStackserviceLB51868E5D",
+          "DNSName",
+        ],
+      },
+    },
+    "MyTestStackserviceServiceURL5A467385": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "MyTestStackserviceLB51868E5D",
+                "DNSName",
+              ],
+            },
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "MyTestStackclusterD4C04A60": {
+      "Properties": {
+        "ClusterName": "MyTestStack-cluster",
+      },
+      "Type": "AWS::ECS::Cluster",
+    },
+    "MyTestStackdown": {
+      "Properties": {
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Sets the desired count of the ",
+              {
+                "Fn::GetAtt": [
+                  "MyTestStackserviceService0D2DC84E",
+                  "Name",
+                ],
+              },
+              " ECS service to 0",
+            ],
+          ],
+        },
+        "FlexibleTimeWindow": {
+          "Mode": "OFF",
+        },
+        "Name": "MyTestStack-down",
+        "ScheduleExpression": "cron(0 17 ? * MON-FRI *)",
+        "ScheduleExpressionTimezone": "America/Los_Angeles",
+        "State": "ENABLED",
+        "Target": {
+          "Arn": "arn:aws:scheduler:::aws-sdk:ecs:updateService",
+          "Input": {
+            "Fn::Join": [
+              "",
+              [
+                "{"Cluster":"",
+                {
+                  "Ref": "MyTestStackclusterD4C04A60",
+                },
+                "","Service":"",
+                {
+                  "Fn::GetAtt": [
+                    "MyTestStackserviceService0D2DC84E",
+                    "Name",
+                  ],
+                },
+                "","DesiredCount":0}",
+              ],
+            ],
+          },
+          "RetryPolicy": {
+            "MaximumEventAgeInSeconds": 90,
+            "MaximumRetryAttempts": 2,
+          },
+          "RoleArn": {
+            "Fn::GetAtt": [
+              "MyTestStackschedulerrole2AAAF2A6",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::Scheduler::Schedule",
+    },
+    "MyTestStackschedulerrole2AAAF2A6": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "scheduler.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "ecs:UpdateService",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Ref": "MyTestStackserviceService0D2DC84E",
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "ecsUpdateServicePolicy",
+          },
+        ],
+        "RoleName": "MyTestStack-scheduler-role",
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "MyTestStackserviceLB51868E5D": {
+      "DependsOn": [
+        "MyTestStackvpcPublicSubnet1DefaultRouteC7A2BA14",
+        "MyTestStackvpcPublicSubnet1RouteTableAssociationC2D4DDC3",
+        "MyTestStackvpcPublicSubnet2DefaultRoute64D70925",
+        "MyTestStackvpcPublicSubnet2RouteTableAssociation9CF3F660",
+      ],
+      "Properties": {
+        "LoadBalancerAttributes": [
+          {
+            "Key": "deletion_protection.enabled",
+            "Value": "false",
+          },
+        ],
+        "Scheme": "internet-facing",
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "MyTestStackserviceLBSecurityGroup29C588C6",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": [
+          {
+            "Ref": "MyTestStackvpcPublicSubnet1Subnet5EFB70A2",
+          },
+          {
+            "Ref": "MyTestStackvpcPublicSubnet2Subnet5A2A870B",
+          },
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "MyTestStackserviceLBPublicListenerD194A1FE": {
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "MyTestStackserviceLBPublicListenerECSGroupB8D2ECE0",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": {
+          "Ref": "MyTestStackserviceLB51868E5D",
+        },
+        "Port": 80,
+        "Protocol": "HTTP",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "MyTestStackserviceLBPublicListenerECSGroupB8D2ECE0": {
+      "Properties": {
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": [
+          {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+          {
+            "Key": "deregistration_delay.timeout_seconds",
+            "Value": "30",
+          },
+        ],
+        "TargetType": "ip",
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "MyTestStackserviceLBSecurityGroup29C588C6": {
+      "Properties": {
+        "GroupDescription": "Automatically created Security Group for ELB MyTestStackMyTestStackserviceLB622A7727",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow from anyone on port 80",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80,
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "MyTestStackserviceLBSecurityGrouptoMyTestStackMyTestStackserviceServiceSecurityGroupF46DFCD2806B1DE6B4": {
+      "Properties": {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "MyTestStackserviceServiceSecurityGroup0F219E68",
+            "GroupId",
+          ],
+        },
+        "FromPort": 80,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "MyTestStackserviceLBSecurityGroup29C588C6",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 80,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "MyTestStackserviceService0D2DC84E": {
+      "DependsOn": [
+        "MyTestStackserviceLBPublicListenerECSGroupB8D2ECE0",
+        "MyTestStackserviceLBPublicListenerD194A1FE",
+        "MyTestStacktaskdefTaskRole399BEE4A",
+      ],
+      "Properties": {
+        "CapacityProviderStrategy": [
+          {
+            "CapacityProvider": "FARGATE_SPOT",
+            "Weight": 50,
+          },
+          {
+            "CapacityProvider": "FARGATE",
+            "Weight": 1,
+          },
+        ],
+        "Cluster": {
+          "Ref": "MyTestStackclusterD4C04A60",
+        },
+        "DeploymentConfiguration": {
+          "Alarms": {
+            "AlarmNames": [],
+            "Enable": false,
+            "Rollback": false,
+          },
+          "DeploymentCircuitBreaker": {
+            "Enable": true,
+            "Rollback": true,
+          },
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 100,
+        },
+        "DeploymentController": {
+          "Type": "ECS",
+        },
+        "DesiredCount": 1,
+        "EnableECSManagedTags": false,
+        "HealthCheckGracePeriodSeconds": 60,
+        "LoadBalancers": [
+          {
+            "ContainerName": "MyTestStack-container",
+            "ContainerPort": 80,
+            "TargetGroupArn": {
+              "Ref": "MyTestStackserviceLBPublicListenerECSGroupB8D2ECE0",
+            },
+          },
+        ],
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "ENABLED",
+            "SecurityGroups": [
+              {
+                "Fn::GetAtt": [
+                  "MyTestStackserviceServiceSecurityGroup0F219E68",
+                  "GroupId",
+                ],
+              },
+            ],
+            "Subnets": [
+              {
+                "Ref": "MyTestStackvpcPublicSubnet1Subnet5EFB70A2",
+              },
+              {
+                "Ref": "MyTestStackvpcPublicSubnet2Subnet5A2A870B",
+              },
+            ],
+          },
+        },
+        "TaskDefinition": {
+          "Ref": "MyTestStacktaskdefE196163D",
+        },
+      },
+      "Type": "AWS::ECS::Service",
+    },
+    "MyTestStackserviceServiceSecurityGroup0F219E68": {
+      "DependsOn": [
+        "MyTestStacktaskdefTaskRole399BEE4A",
+      ],
+      "Properties": {
+        "GroupDescription": "MyTestStack/MyTestStack-service/Service/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "MyTestStackserviceServiceSecurityGroupfromMyTestStackMyTestStackserviceLBSecurityGroupAB4F81518022F6033D": {
+      "DependsOn": [
+        "MyTestStacktaskdefTaskRole399BEE4A",
+      ],
+      "Properties": {
+        "Description": "Load balancer to target",
+        "FromPort": 80,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "MyTestStackserviceServiceSecurityGroup0F219E68",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "MyTestStackserviceLBSecurityGroup29C588C6",
+            "GroupId",
+          ],
+        },
+        "ToPort": 80,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "MyTestStacktaskdefE196163D": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Essential": true,
+            "Image": "amazon/amazon-ecs-sample",
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "ecsMyTestStackcontainerE3AE6307",
+                },
+                "awslogs-region": {
+                  "Ref": "AWS::Region",
+                },
+                "awslogs-stream-prefix": "MyTestStack",
+              },
+            },
+            "Name": "MyTestStack-container",
+            "PortMappings": [
+              {
+                "ContainerPort": 80,
+                "Protocol": "tcp",
+              },
+            ],
+            "StopTimeout": 120,
+          },
+        ],
+        "Cpu": "256",
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "MyTestStacktaskdefExecutionRoleB63970BE",
+            "Arn",
+          ],
+        },
+        "Family": "MyTestStackMyTestStacktaskdef49E26F4A",
+        "Memory": "512",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE",
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "MyTestStacktaskdefTaskRole399BEE4A",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ECS::TaskDefinition",
+    },
+    "MyTestStacktaskdefExecutionRoleB63970BE": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "MyTestStacktaskdefExecutionRoleDefaultPolicy4FCD585C": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ecsMyTestStackcontainerE3AE6307",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "MyTestStacktaskdefExecutionRoleDefaultPolicy4FCD585C",
+        "Roles": [
+          {
+            "Ref": "MyTestStacktaskdefExecutionRoleB63970BE",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "MyTestStacktaskdefTaskRole399BEE4A": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "MyTestStackup": {
+      "Properties": {
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Sets the desired count of the ",
+              {
+                "Fn::GetAtt": [
+                  "MyTestStackserviceService0D2DC84E",
+                  "Name",
+                ],
+              },
+              " ECS service to 1",
+            ],
+          ],
+        },
+        "FlexibleTimeWindow": {
+          "Mode": "OFF",
+        },
+        "Name": "MyTestStack-up",
+        "ScheduleExpression": "cron(0 9 ? * MON-FRI *)",
+        "ScheduleExpressionTimezone": "America/Los_Angeles",
+        "State": "ENABLED",
+        "Target": {
+          "Arn": "arn:aws:scheduler:::aws-sdk:ecs:updateService",
+          "Input": {
+            "Fn::Join": [
+              "",
+              [
+                "{"Cluster":"",
+                {
+                  "Ref": "MyTestStackclusterD4C04A60",
+                },
+                "","Service":"",
+                {
+                  "Fn::GetAtt": [
+                    "MyTestStackserviceService0D2DC84E",
+                    "Name",
+                  ],
+                },
+                "","DesiredCount":1}",
+              ],
+            ],
+          },
+          "RetryPolicy": {
+            "MaximumEventAgeInSeconds": 90,
+            "MaximumRetryAttempts": 2,
+          },
+          "RoleArn": {
+            "Fn::GetAtt": [
+              "MyTestStackschedulerrole2AAAF2A6",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::Scheduler::Schedule",
+    },
+    "MyTestStackvpcBFB55ABE": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack-vpc",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::VPC",
+    },
+    "MyTestStackvpcIGWCD566135": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack-vpc",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::InternetGateway",
+    },
+    "MyTestStackvpcPrivateSubnet1DefaultRoute2B600024": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "MyTestStackvpcPublicSubnet1NATGatewayAF8F6465",
+        },
+        "RouteTableId": {
+          "Ref": "MyTestStackvpcPrivateSubnet1RouteTable3197B192",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "MyTestStackvpcPrivateSubnet1RouteTable3197B192": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PrivateSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "MyTestStackvpcPrivateSubnet1RouteTableAssociation46287F69": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "MyTestStackvpcPrivateSubnet1RouteTable3197B192",
+        },
+        "SubnetId": {
+          "Ref": "MyTestStackvpcPrivateSubnet1SubnetC6962656",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "MyTestStackvpcPrivateSubnet1SubnetC6962656": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.128.0/18",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PrivateSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "MyTestStackvpcPrivateSubnet2DefaultRouteD5BE13FA": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "MyTestStackvpcPublicSubnet2NATGatewayBE5CCD28",
+        },
+        "RouteTableId": {
+          "Ref": "MyTestStackvpcPrivateSubnet2RouteTable275B0E4C",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "MyTestStackvpcPrivateSubnet2RouteTable275B0E4C": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PrivateSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "MyTestStackvpcPrivateSubnet2RouteTableAssociation5EA7EA51": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "MyTestStackvpcPrivateSubnet2RouteTable275B0E4C",
+        },
+        "SubnetId": {
+          "Ref": "MyTestStackvpcPrivateSubnet2Subnet8E8E98BA",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "MyTestStackvpcPrivateSubnet2Subnet8E8E98BA": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.192.0/18",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Private",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PrivateSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "MyTestStackvpcPublicSubnet1DefaultRouteC7A2BA14": {
+      "DependsOn": [
+        "MyTestStackvpcVPCGWA5671226",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "MyTestStackvpcIGWCD566135",
+        },
+        "RouteTableId": {
+          "Ref": "MyTestStackvpcPublicSubnet1RouteTable88465386",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "MyTestStackvpcPublicSubnet1EIP72B179CA": {
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PublicSubnet1",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::EIP",
+    },
+    "MyTestStackvpcPublicSubnet1NATGatewayAF8F6465": {
+      "DependsOn": [
+        "MyTestStackvpcPublicSubnet1DefaultRouteC7A2BA14",
+        "MyTestStackvpcPublicSubnet1RouteTableAssociationC2D4DDC3",
+      ],
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "MyTestStackvpcPublicSubnet1EIP72B179CA",
+            "AllocationId",
+          ],
+        },
+        "SubnetId": {
+          "Ref": "MyTestStackvpcPublicSubnet1Subnet5EFB70A2",
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PublicSubnet1",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::NatGateway",
+    },
+    "MyTestStackvpcPublicSubnet1RouteTable88465386": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PublicSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "MyTestStackvpcPublicSubnet1RouteTableAssociationC2D4DDC3": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "MyTestStackvpcPublicSubnet1RouteTable88465386",
+        },
+        "SubnetId": {
+          "Ref": "MyTestStackvpcPublicSubnet1Subnet5EFB70A2",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "MyTestStackvpcPublicSubnet1Subnet5EFB70A2": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.0.0/18",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PublicSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "MyTestStackvpcPublicSubnet2DefaultRoute64D70925": {
+      "DependsOn": [
+        "MyTestStackvpcVPCGWA5671226",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "MyTestStackvpcIGWCD566135",
+        },
+        "RouteTableId": {
+          "Ref": "MyTestStackvpcPublicSubnet2RouteTable7A8C3B4F",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "MyTestStackvpcPublicSubnet2EIPED37765C": {
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PublicSubnet2",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::EIP",
+    },
+    "MyTestStackvpcPublicSubnet2NATGatewayBE5CCD28": {
+      "DependsOn": [
+        "MyTestStackvpcPublicSubnet2DefaultRoute64D70925",
+        "MyTestStackvpcPublicSubnet2RouteTableAssociation9CF3F660",
+      ],
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "MyTestStackvpcPublicSubnet2EIPED37765C",
+            "AllocationId",
+          ],
+        },
+        "SubnetId": {
+          "Ref": "MyTestStackvpcPublicSubnet2Subnet5A2A870B",
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PublicSubnet2",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::NatGateway",
+    },
+    "MyTestStackvpcPublicSubnet2RouteTable7A8C3B4F": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PublicSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "MyTestStackvpcPublicSubnet2RouteTableAssociation9CF3F660": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "MyTestStackvpcPublicSubnet2RouteTable7A8C3B4F",
+        },
+        "SubnetId": {
+          "Ref": "MyTestStackvpcPublicSubnet2Subnet5A2A870B",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "MyTestStackvpcPublicSubnet2Subnet5A2A870B": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.64.0/18",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/MyTestStack-vpc/PublicSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "MyTestStackvpcVPCGWA5671226": {
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "MyTestStackvpcIGWCD566135",
+        },
+        "VpcId": {
+          "Ref": "MyTestStackvpcBFB55ABE",
+        },
+      },
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+    },
+    "ecsMyTestStackcontainerE3AE6307": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "MyTestStack-log-group",
+        "RetentionInDays": 7,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

@@ -20,8 +20,8 @@ import {
 
 export class FargateSchedulerDemoStack extends Stack {
   readonly id: string
-  service: FargateService
-  cluster: Cluster
+  private service: FargateService
+  private cluster: Cluster
 
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
@@ -48,7 +48,7 @@ export class FargateSchedulerDemoStack extends Stack {
       {
         cpu: 256,
         memoryLimitMiB: 512,
-      }
+      },
     )
     taskDefinition.addContainer(`${this.id}-container`, {
       containerName: `${this.id}-container`,
@@ -94,7 +94,7 @@ export class FargateSchedulerDemoStack extends Stack {
         desiredCount: 1,
         minHealthyPercent: 100,
         taskDefinition,
-      }
+      },
     )
     this.service = service.service
 
@@ -102,7 +102,7 @@ export class FargateSchedulerDemoStack extends Stack {
     // Mostly just needs to be less than 2 minutes
     service.targetGroup.setAttribute(
       'deregistration_delay.timeout_seconds',
-      '30'
+      '30',
     )
   }
 
