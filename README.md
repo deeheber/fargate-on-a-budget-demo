@@ -1,4 +1,4 @@
-# Fargate Scheduler Demo
+# Fargate On A Budget Demo
 
 Do you need to have a non-business critical web app that requires a server on AWS, but also it won't be used during certain times of the day? Do you want to save some money?
 
