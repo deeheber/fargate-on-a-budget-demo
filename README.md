@@ -29,7 +29,7 @@ In this solution we heavily prefer Fargate Spot instances. There's also an Event
 
 - The URL to access the example web app will be output to the console at the end of the prior step
 - It will not work if the service is shut down
-- The URL exposed by the load balancer in this example is **open to the public internet**. Please ensure that if you are using this a template for an application that contains private information to include authentication or tweak it to protect the endpoint from public access.
+- The URL exposed by the load balancer in this example is **open to the public internet**. Please ensure that if you are using this as a template for an application that contains private information to include authentication or tweak it to protect the endpoint from public access.
 - The example configures two schedules 1. Turns the Fargate task on Mon - Fri at 9am PT 2. Turns the Fargate task off Mon - Fri at 5pm PT.
 - This is accomplished by setting the [desired count](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_definition_parameters.html#sd-desiredcount) number to `0` for off and `1` for on. You can set the desired count to more than `1`...this is just for demo purposes.
 - The schedules are utilizing [universal targets](https://docs.aws.amazon.com/scheduler/latest/UserGuide/managing-targets-universal.html), so there is no need for Lambda (or other compute). Under the hood, EventBridge is executing the `aws ecs update-service --cluster <clusterName> --service <serviceName> --desired-count <number>` [CLI command](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ecs/update-service.html).
