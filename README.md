@@ -5,7 +5,7 @@ Do you need to have a non-business critical web app that requires a server on AW
 This is a solution for this usecase that utilizes the following AWS services:
 
 - [Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html)
-- [Fargate (Spot instances)](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-capacity-providers.html0
+- [Fargate (Spot instances)](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-capacity-providers.html)
 - [EventBridge Scheduler](https://docs.aws.amazon.com/scheduler/latest/UserGuide/what-is-scheduler.html)
 - [AWS Cloud Development Kit for TypeScript](https://docs.aws.amazon.com/cdk/v2/guide/home.html) - for infrastructure as code based deployment
 
