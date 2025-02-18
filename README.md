@@ -1,5 +1,7 @@
 # Fargate On A Budget Demo
 
+[Companion blog post that goes along with this example repo](https://danielleheberling.xyz/blog/fargate-on-a-budget/)
+
 Do you need to have a non-business critical web app that requires a server on AWS, but also it won't be used during certain times of the day? Do you want to save some money?
 
 This is a solution for this usecase that utilizes the following AWS services:
